@@ -1,0 +1,102 @@
+{
+  "name": "xgrain402",
+  "version": "1.0.0",
+  "description": "Advanced BSC (Binance Smart Chain) payment infrastructure for seamless microtransactions and machine economies",
+  "keywords": [
+    "xgrain402",
+    "bsc",
+    "binance-smart-chain",
+    "bnb",
+    "payments",
+    "microtransactions",
+    "machine-economy",
+    "crypto",
+    "web3",
+    "payment-rail",
+    "evm",
+    "defi"
+  ],
+  "author": "xgrain402",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "import": "./dist/client/index.mjs",
+      "require": "./dist/client/index.js"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.mjs",
+      "require": "./dist/server/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.mjs",
+      "require": "./dist/types/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "import": "./dist/utils/index.mjs",
+      "require": "./dist/utils/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/",
+    "clean": "rm -rf dist",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "prepublishOnly": "npm run clean && npm run build && npm run typecheck"
+  },
+  "dependencies": {
+    "ethers": "^6.9.0",
+    "@xgrain402/core": "^1.0.0",
+    "zod": ">=3.20.0"
+  },
+  "peerDependencies": {
+    "ethers": "^6.9.0",
+    "zod": ">=3.20.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.0.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "prettier": "^3.0.0",
+    "ts-jest": "^29.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xgrain402/xgrain402.git"
+  },
+  "homepage": "https://github.com/xgrain402/xgrain402",
+  "bugs": {
+    "url": "https://github.com/xgrain402/xgrain402/issues"
+  }
+}
