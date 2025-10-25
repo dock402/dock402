@@ -1,16 +1,17 @@
-# xgrain402
+# dock402
 
-*Modern BSC (Binance Smart Chain) payment infrastructure for decentralized applications*
+*Multi-chain x402 payment infrastructure for decentralized applications*
 
-xgrain402 delivers production-ready payment processing capabilities built specifically for the BSC ecosystem. This SDK enables developers to integrate sophisticated microtransaction functionality into web applications, supporting automated payment flows that scale with blockchain-native performance characteristics.
+dock402 delivers production-ready payment processing capabilities built for the x402 protocol across multiple blockchain networks. This SDK enables developers to integrate sophisticated microtransaction functionality into web applications, supporting automated payment flows that scale with blockchain-native performance characteristics.
 
 ## Overview
 
-The xgrain402 SDK provides comprehensive tooling for implementing payment-gated resources using BSC's high-throughput blockchain infrastructure. Applications can leverage automated transaction processing, multi-wallet compatibility, and enterprise-grade security features without complex blockchain integrations.
+The dock402 SDK provides comprehensive tooling for implementing payment-gated resources using x402's multi-chain infrastructure. Applications can leverage automated transaction processing across Base, Solana, Polygon, BSC, Sei, and Peaq networks with multi-wallet compatibility and enterprise-grade security features.
 
 **Core Capabilities:**
+- Multi-chain support (Base, Solana, Polygon, BSC, Sei, Peaq)
 - Automated payment interception and processing
-- Multi-wallet adapter compatibility across major BSC wallets (MetaMask, Rabby)
+- Universal wallet adapter compatibility (MetaMask, Phantom, Rabby, WalletConnect)
 - Type-safe TypeScript implementation with comprehensive validation
 - Framework-agnostic architecture supporting major web frameworks
 - Production-optimized performance with sub-second transaction finality
@@ -18,14 +19,14 @@ The xgrain402 SDK provides comprehensive tooling for implementing payment-gated 
 
 ## Setup
 
-Add xgrain402 to your project using your preferred package manager:
+Add dock402 to your project using your preferred package manager:
 
 ```bash
-npm install xgrain402
+npm install dock402-x402-sdk
 # or
-yarn add xgrain402  
+yarn add dock402-x402-sdk  
 # or
-pnpm add xgrain402
+pnpm add dock402-x402-sdk
 ```
 
 ## Implementation Guide
@@ -35,19 +36,19 @@ pnpm add xgrain402
 Implement automatic payment handling in browser environments:
 
 ```typescript
-import { createXGrainClient } from 'xgrain402/client';
+import { createX402Client } from 'dock402-x402-sdk/client';
 import { useAccount } from 'wagmi';
 
 export function usePaymentClient() {
   const { address, signTransaction } = useAccount();
 
-  const client = createXGrainClient({
+  const client = createX402Client({
     wallet: { 
       address: address, 
       signTransaction 
     },
-    network: 'bsc-mainnet',
-    maxAmount: BigInt(50_000_000_000_000_000_000n), // Safety limit: 50 BNB
+    network: 'base', // or 'solana', 'polygon', 'bsc', 'sei', 'peaq'
+    maxAmount: BigInt(50_000_000_000_000_000_000n), // Safety limit
   });
 
   const requestPaidResource = async (endpoint: string, options?: RequestInit) => {
@@ -67,13 +68,13 @@ export function usePaymentClient() {
 Configure payment verification and settlement on your backend:
 
 ```typescript
-import { XGrainPaymentProcessor } from 'xgrain402/server';
+import { X402PaymentProcessor } from 'dock402-x402-sdk/server';
 import { Request, Response } from 'express';
 
-const processor = new XGrainPaymentProcessor({
-  network: 'bsc-mainnet',
+const processor = new X402PaymentProcessor({
+  network: 'base', // or 'solana', 'polygon', etc.
   treasuryWallet: process.env.TREASURY_WALLET_ADDRESS!,
-  facilitatorEndpoint: 'https://api.xgrain402.xyz/facilitator',
+  facilitatorEndpoint: process.env.FACILITATOR_ENDPOINT!,
 });
 
 export async function handlePaymentGatedEndpoint(req: Request, res: Response) {
@@ -81,12 +82,12 @@ export async function handlePaymentGatedEndpoint(req: Request, res: Response) {
   
   const paymentSpec = await processor.createPaymentRequirements({
     price: {
-      amount: "10000000000000000", // 0.01 BNB
+      amount: "10000000000000000", // 0.01 ETH on Base
       asset: {
-        address: "0x0000000000000000000000000000000000000000" // Native BNB
+        address: "0x0000000000000000000000000000000000000000" // Native token
       }
     },
-    network: 'bsc-mainnet',
+    network: 'base',
     config: {
       description: 'API Access Fee',
       resource: req.url,
@@ -116,19 +117,19 @@ export async function handlePaymentGatedEndpoint(req: Request, res: Response) {
 ## Project Structure
 
 ```
-xgrain402/
+dock402/
 ├── client/
 │   ├── payment-interceptor.ts    # Automatic payment detection
-│   ├── transaction-builder.ts    # Transaction assembly
-│   └── wallet-adapter.ts        # Wallet interface abstraction
+│   ├── transaction-builder.ts    # Multi-chain transaction assembly
+│   └── wallet-adapter.ts        # Universal wallet interface
 ├── server/  
 │   ├── payment-processor.ts     # Payment validation engine
 │   ├── facilitator-client.ts    # Network communication layer
 │   └── middleware.ts           # Framework integration utilities  
 ├── types/
-│   ├── payment-protocol.ts     # Protocol schema definitions
-│   ├── bsc-primitives.ts       # Blockchain-specific types
-│   └── client-server.ts       # API interface contracts
+│   ├── x402-protocol.ts        # x402 protocol definitions
+│   ├── evm-payment.ts          # EVM chain types
+│   └── solana-payment.ts       # Solana-specific types
 └── utils/
     ├── crypto.ts              # Cryptographic operations
     ├── validation.ts          # Input sanitization
@@ -142,56 +143,31 @@ xgrain402/
 Configure your application environment with the required variables:
 
 ```bash
-# BSC Network Settings
-NEXT_PUBLIC_BSC_NETWORK=bsc-mainnet
-NEXT_PUBLIC_BSC_RPC=https://bsc-dataseed.binance.org
+# Network Settings
+NEXT_PUBLIC_X402_NETWORK=base
+NEXT_PUBLIC_RPC_ENDPOINT=https://mainnet.base.org
 
 # Payment Processing
-TREASURY_WALLET_ADDRESS=your_treasury_bsc_address
-FACILITATOR_ENDPOINT=https://api.xgrain402.xyz/facilitator
+TREASURY_WALLET_ADDRESS=your_treasury_address
+FACILITATOR_ENDPOINT=https://api.dock402.com/facilitator
 
 # Application Config  
 NEXT_PUBLIC_BASE_URL=https://your-application.com
-XGRAIN_MAX_PAYMENT_AMOUNT=50000000000000000000
+X402_MAX_PAYMENT_AMOUNT=50000000000000000000
 ```
 
-### Token Specifications
+## Supported Networks
 
-Configure supported BEP-20 tokens for your payment flows:
+dock402 supports the following blockchain networks:
 
-```typescript
-// Native BNB Configuration
-const BNB_NATIVE = "0x0000000000000000000000000000000000000000";
-
-// USDT on BSC  
-const USDT_BSC = "0x55d398326f99059fF775485246999027B3197955";
-
-// BUSD on BSC
-const BUSD_BSC = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
-
-const paymentConfiguration = {
-  price: {
-    amount: "10000000000000000", // 0.01 BNB
-    asset: { address: BNB_NATIVE }
-  },
-  network: 'bsc-mainnet'
-};
-```
-
-### Amount Handling
-
-Payment amounts utilize BNB wei units (18 decimal precision) represented as strings:
-
-```typescript
-import { bnbToWei, weiToBnb } from 'xgrain402/utils';
-
-// BNB to wei conversion
-const subscriptionPrice = bnbToWei(0.5);   // "500000000000000000"  
-const microPayment = bnbToWei(0.001);      // "1000000000000000"
-
-// wei to BNB conversion
-const displayAmount = weiToBnb("500000000000000000"); // 0.5
-```
+| Network | Native Token | Transaction Speed | Avg. Cost |
+|---------|--------------|-------------------|-----------|
+| Base | ETH | ~2 seconds | < $0.01 |
+| Solana | SOL | < 1 second | < $0.001 |
+| Polygon | MATIC | ~2 seconds | < $0.01 |
+| BSC | BNB | ~3 seconds | ~$0.10 |
+| Sei | SEI | ~1 second | < $0.01 |
+| Peaq | PEAQ | ~2 seconds | < $0.01 |
 
 ## Security Implementation
 
@@ -204,14 +180,13 @@ const displayAmount = weiToBnb("500000000000000000"); // 0.5
 
 ## Wallet Compatibility Matrix
 
-| Provider | Integration Level | Special Features |
-|----------|------------------|------------------|
-| MetaMask | Complete | Mobile support, auto-approval |
-| Rabby | Complete | Multi-chain support |
-| Trust Wallet | Complete | Mobile-first experience |
-| Binance Wallet | Complete | Native BSC integration |
-| Coinbase Wallet | Standard | Basic transaction signing |
-| WalletConnect | Standard | Multi-wallet support |
+| Provider | EVM Chains | Solana | Special Features |
+|----------|-----------|---------|------------------|
+| MetaMask | ✓ | ✗ | Mobile support, auto-approval |
+| Phantom | ✗ | ✓ | Solana-native, mobile support |
+| Rabby | ✓ | ✗ | Multi-chain support |
+| WalletConnect | ✓ | ✓ | Universal protocol |
+| Coinbase Wallet | ✓ | ✗ | Multi-chain support |
 
 ## Quality Assurance
 
@@ -223,79 +198,31 @@ npm run test:integration  # End-to-end integration testing
 npm run test:e2e          # Full payment flow validation
 ```
 
-### Integration Verification
-
-Access `/xgrain-test` within your application to validate:
-
-- SDK integration correctness
-- Wallet connection functionality  
-- Complete payment flow execution
-- Transaction signing capabilities
-- Settlement process verification
-
-## Performance Characteristics
-
-**Network Performance:**
-- Transaction confirmation: < 3 seconds average
-- BSC network throughput: 100+ transactions per second
-- Transaction cost: ~$0.10-0.30 per operation
-- Network uptime: 99.9% availability guarantee
-- Payment verification latency: Sub-100ms response times
-
-## Advanced Configuration
-
-### Custom Payment Processing
-
-```typescript
-const advancedClient = createXGrainClient({
-  wallet,
-  network: 'bsc-mainnet',
-  customRPC: 'https://bsc-dataseed1.binance.org',
-  retryPolicy: {
-    attempts: 5,
-    backoff: 'exponential'
-  },
-  middleware: [
-    metricsMiddleware,
-    validationMiddleware
-  ]
-});
-```
-
-### Batch Transaction Processing
-
-```typescript
-const batchOperations = await xgrain.processBatch([
-  { endpoint: '/api/data-processing', amount: '10000000000000000' },
-  { endpoint: '/api/content-access', amount: '5000000000000000' },
-  { endpoint: '/api/computation-task', amount: '2500000000000000' }
-]);
-```
-
 ## Framework Integration
 
 Compatible with modern web development stacks:
 
-**Frontend Frameworks:** Next.js, React, Vue.js, Svelte
+**Frontend Frameworks:** Next.js, React, Vue.js, Svelte, Angular
 **Backend Systems:** Express.js, Fastify, NestJS, Koa.js  
-**Runtime Environments:** Node.js, Edge Runtime, Serverless
-**Blockchain Integration:** Native BSC dApp compatibility
+**Runtime Environments:** Node.js, Edge Runtime, Serverless, Cloudflare Workers
+**Blockchain Integration:** Multi-chain dApp compatibility
 
 ## Use Case Applications
 
-Target applications for xgrain402 implementation:
+Target applications for dock402 implementation:
 
 **Automated Commerce:** IoT device micropayments for sensor data transmission
 **AI Services:** Autonomous agent resource consumption and service billing
 **Infrastructure Billing:** Granular pay-per-use API and compute resource pricing
 **Media Distribution:** Per-consumption content access and streaming payments  
 **Service Metering:** Usage-based billing models for SaaS applications
+**Cross-chain Payments:** Unified payment interface across multiple blockchains
 
 ## Development Workflow
 
 ```bash
-git clone https://github.com/xgrain402/xgrain402-sdk
-cd xgrain402-sdk
+git clone https://github.com/dock402/dock402
+cd dock402
 pnpm install
 pnpm build  
 pnpm test
@@ -303,13 +230,15 @@ pnpm test
 
 ## License
 
-MIT License
+MIT License - see LICENSE file for details
 
 ## Community Resources
 
-**GitHub Issues:** [github.com/xgrain402/xgrain402-sdk/issues](https://github.com/xgrain402/xgrain402-sdk/issues)
-**Twitter Updates:** [@xgrain402](https://twitter.com/xgrain402)
+**Documentation:** [docs.dock402.com](https://dock402.com/docs)
+**GitHub:** [github.com/dock402/dock402](https://github.com/dock402/dock402)
+**Twitter:** [@dock402](https://x.com/dock402)
+**Website:** [dock402.com](https://dock402.com)
 
 ---
 
-*xgrain402: Infrastructure for the decentralized economy*
+*dock402: The App Store for x402*
