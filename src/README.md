@@ -1,32 +1,39 @@
-# x402-bsc
+# @dock402/x402-sdk
 
-A reusable, framework-agnostic implementation of the x402 payment protocol for BSC (Binance Smart Chain).
+Multi-chain x402 payment infrastructure for decentralized applications.
 
 ## Features
 
+- ✅ **Multi-Chain**: Support for Base, Solana, Polygon, BSC, Sei, and Peaq
 - ✅ **Client-side**: Automatic 402 payment handling with any wallet provider
 - ✅ **Server-side**: Payment verification and settlement with facilitator
-- ✅ **Framework agnostic**: Works with any wallet provider (MetaMask, Rabby, etc.)
+- ✅ **Framework agnostic**: Works with any wallet provider (MetaMask, Phantom, Rabby, etc.)
 - ✅ **HTTP framework agnostic**: Works with Next.js, Express, Fastify, etc.
-- ✅ **TypeScript**: Full type safety with Zod validation
-- ✅ **Ethers.js**: Built on ethers v6 for EVM compatibility
+- ✅ **TypeScript**: Full type safety with comprehensive validation
+- ✅ **EVM & Solana**: Built for both EVM chains and Solana
 
 ## Installation
 
-This package is currently designed to be used within your project. To use it in another project, copy the `src/lib/x402-bsc` directory.
+```bash
+npm install @dock402/x402-sdk
+# or
+yarn add @dock402/x402-sdk
+# or
+pnpm add @dock402/x402-sdk
+```
 
 ### Dependencies
 
 ```bash
-npm install ethers zod wagmi viem
+npm install ethers @solana/web3.js zod wagmi viem
 ```
 
-## Usage
+## Quick Start
 
 ### Client Side (React/Frontend)
 
 ```typescript
-import { createX402Client } from '@/lib/x402-bsc/client';
+import { createX402Client } from '@dock402/x402-sdk/client';
 import { useAccount } from 'wagmi';
 
 function MyComponent() {
@@ -35,8 +42,8 @@ function MyComponent() {
   // Create x402 client
   const client = createX402Client({
     wallet: { address, signTransaction },
-    network: 'bsc-testnet',
-    maxPaymentAmount: BigInt('10000000000000000'), // Optional: max 0.01 BNB
+    network: 'base', // or 'solana', 'polygon', 'bsc', 'sei', 'peaq'
+    maxPaymentAmount: BigInt('10000000000000000'), // Optional: max 0.01 ETH
   });
 
   // Make a paid request - automatically handles 402 payments
@@ -53,12 +60,12 @@ function MyComponent() {
 
 ```typescript
 import { NextRequest, NextResponse } from 'next/server';
-import { X402PaymentHandler } from '@/lib/x402-bsc/server';
+import { X402PaymentHandler } from '@dock402/x402-sdk/server';
 
 const x402 = new X402PaymentHandler({
-  network: 'bsc-testnet',
+  network: 'base',
   treasuryAddress: process.env.TREASURY_WALLET_ADDRESS!,
-  facilitatorUrl: 'https://facilitator.xgrain402.xyz',
+  facilitatorUrl: process.env.FACILITATOR_ENDPOINT!,
 });
 
 export async function POST(req: NextRequest) {
@@ -68,9 +75,9 @@ export async function POST(req: NextRequest) {
   if (!paymentHeader) {
     // Return 402 with payment requirements
     const response = await x402.create402Response({
-      amount: '10000000000000000',  // 0.01 BNB in wei
-      description: 'AI Chat Request',
-      resource: `${process.env.NEXT_PUBLIC_BASE_URL}/api/chat`,
+      amount: '10000000000000000',  // 0.01 ETH in wei
+      description: 'API Request',
+      resource: `${process.env.NEXT_PUBLIC_BASE_URL}/api/endpoint`,
     });
     return NextResponse.json(response.body, { status: response.status });
   }
@@ -78,8 +85,8 @@ export async function POST(req: NextRequest) {
   // 2. Create payment requirements (store this for verify/settle)
   const paymentRequirements = await x402.createPaymentRequirements({
     amount: '10000000000000000',
-    description: 'AI Chat Request',
-    resource: `${process.env.NEXT_PUBLIC_BASE_URL}/api/chat`,
+    description: 'API Request',
+    resource: `${process.env.NEXT_PUBLIC_BASE_URL}/api/endpoint`,
   });
 
   // 3. Verify payment
@@ -103,13 +110,13 @@ export async function POST(req: NextRequest) {
 
 ```typescript
 import express from 'express';
-import { X402PaymentHandler } from './lib/x402-bsc/server';
+import { X402PaymentHandler } from '@dock402/x402-sdk/server';
 
 const app = express();
 const x402 = new X402PaymentHandler({
-  network: 'bsc-testnet',
+  network: 'base',
   treasuryAddress: process.env.TREASURY_WALLET_ADDRESS!,
-  facilitatorUrl: 'https://facilitator.xgrain402.xyz',
+  facilitatorUrl: process.env.FACILITATOR_ENDPOINT!,
 });
 
 app.post('/api/paid-endpoint', async (req, res) => {
@@ -146,6 +153,17 @@ app.post('/api/paid-endpoint', async (req, res) => {
 });
 ```
 
+## Supported Networks
+
+| Network | Chain Type | Native Token | Status |
+|---------|-----------|--------------|---------|
+| Base | EVM (L2) | ETH | ✅ Live |
+| Solana | Solana | SOL | 🔄 Coming Soon |
+| Polygon | EVM (L2) | MATIC | 🔄 Coming Soon |
+| BSC | EVM | BNB | 🔄 Coming Soon |
+| Sei | EVM | SEI | 🔄 Coming Soon |
+| Peaq | EVM | PEAQ | 🔄 Coming Soon |
+
 ## API Reference
 
 ### Client
@@ -158,7 +176,7 @@ Creates a new x402 client instance.
 ```typescript
 {
   wallet: WalletAdapter;              // Wallet with signTransaction method
-  network: 'bsc' | 'bsc-testnet';
+  network: X402Network;                // 'base', 'solana', 'polygon', etc.
   rpcUrl?: string;                    // Optional custom RPC
   maxPaymentAmount?: bigint;          // Optional safety limit
 }
@@ -176,7 +194,7 @@ Creates a new payment handler instance.
 **Config:**
 ```typescript
 {
-  network: 'bsc' | 'bsc-testnet';
+  network: X402Network;                // Network identifier
   treasuryAddress: string;            // Where payments are sent
   facilitatorUrl: string;             // Facilitator service URL
   rpcUrl?: string;                    // Optional custom RPC
@@ -184,7 +202,7 @@ Creates a new payment handler instance.
 ```
 
 **Methods:**
-- `extractPayment(headers)` - Extract X-PAYMENT header from request
+- `extractPayment(headers)` - Extract X-402-Payment-Proof header from request
 - `createPaymentRequirements(options)` - Create payment requirements object
 - `create402Response(options)` - Create 402 response body
 - `verifyPayment(header, requirements)` - Verify payment with facilitator
@@ -195,70 +213,55 @@ Creates a new payment handler instance.
 ### Environment Variables
 
 ```bash
-# Network (optional, defaults to testnet)
-NEXT_PUBLIC_NETWORK=bsc-testnet
+# Network
+NEXT_PUBLIC_X402_NETWORK=base
 
 # Treasury wallet address (where payments are sent)
 TREASURY_WALLET_ADDRESS=your_treasury_address
 
+# Facilitator endpoint
+FACILITATOR_ENDPOINT=https://api.dock402.com/facilitator
+
 # Optional: Custom RPC URLs
-NEXT_PUBLIC_BSC_RPC_TESTNET=https://data-seed-prebsc-1-s1.binance.org:8545
-NEXT_PUBLIC_BSC_RPC_MAINNET=https://bsc-dataseed.binance.org
+NEXT_PUBLIC_BASE_RPC=https://mainnet.base.org
+NEXT_PUBLIC_SOLANA_RPC=https://api.mainnet-beta.solana.com
 
 # Base URL for resource field
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ```
 
-## Wallet Adapter Interface
+## Wallet Compatibility
 
-The package works with any wallet that implements this interface:
-
-```typescript
-interface WalletAdapter {
-  address: string;
-  signTransaction: (tx: Transaction) => Promise<Transaction>;
-}
-```
-
-This works with:
-- MetaMask (via wagmi)
+### EVM Chains (Base, Polygon, BSC, Sei, Peaq)
+- MetaMask
 - Rabby Wallet
 - Trust Wallet
-- Binance Wallet
-- Any EVM-compatible wallet with `signTransaction` method
+- Coinbase Wallet
+- WalletConnect
+- Any EVM-compatible wallet
+
+### Solana
+- Phantom
+- Solflare
+- Backpack
+- Any Solana wallet adapter
 
 ## Payment Amounts
 
-Payment amounts are in wei (18 decimals for BNB):
-- 1 BNB = 1,000,000,000,000,000,000 wei
-- 0.01 BNB = 10,000,000,000,000,000 wei
-- 0.001 BNB = 1,000,000,000,000,000 wei
-
-**Helper functions:**
-```typescript
-import { bnbToWei, weiToBnb } from '@/lib/x402-bsc/utils';
-
-const wei = bnbToWei(0.01);    // "10000000000000000"
-const bnb = weiToBnb(wei);      // 0.01
-```
-
-## Testing
-
-Visit `/x402-test` in your app to test the package independently.
-
-The test verifies:
-- ✅ Package imports work correctly
-- ✅ Client can be created with wallet adapter
-- ✅ Automatic 402 payment handling works
-- ✅ Transaction signing and submission succeed
-- ✅ Payment verification and settlement complete
+Payment amounts are in the smallest unit of each chain:
+- **EVM chains**: wei (18 decimals)
+  - 1 ETH = 1,000,000,000,000,000,000 wei
+  - 0.01 ETH = 10,000,000,000,000,000 wei
+- **Solana**: lamports (9 decimals)
+  - 1 SOL = 1,000,000,000 lamports
+  - 0.01 SOL = 10,000,000 lamports
 
 ## Architecture
 
 ```
-src/lib/x402-bsc/
+src/
 ├── client/                    # Client-side code
-│   ├── transaction-builder.ts # BSC transaction construction
+│   ├── transaction-builder.ts # Multi-chain transaction construction
 │   ├── payment-interceptor.ts # 402 payment fetch interceptor
 │   └── index.ts              # Main client export
 ├── server/                    # Server-side code
@@ -266,8 +269,9 @@ src/lib/x402-bsc/
 │   ├── payment-handler.ts    # Payment verification & settlement
 │   └── index.ts              # Main server export
 ├── types/                     # TypeScript types
-│   ├── xgrain-protocol.ts    # x402 spec types (Zod schemas)
-│   ├── bsc-payment.ts        # BSC-specific types
+│   ├── x402-protocol.ts      # x402 protocol types
+│   ├── evm-payment.ts        # EVM-specific types
+│   ├── solana-payment.ts     # Solana-specific types
 │   └── index.ts
 ├── utils/                     # Utilities
 │   ├── helpers.ts            # Helper functions
@@ -275,22 +279,16 @@ src/lib/x402-bsc/
 └── index.ts                   # Main package export
 ```
 
-## Future Enhancements
+## Documentation
 
-- [ ] Support for BEP-20 token payments (USDT, BUSD, etc.)
-- [ ] Add support for multiple payment tokens
-- [ ] Publish as standalone npm package
-- [ ] Add transaction retry logic
-- [ ] Support for partial payments
-- [ ] Multi-chain support (Ethereum, Polygon, etc.)
+For full documentation, visit [docs.dock402.com](https://dock402.com/docs)
+
+## Community
+
+- Website: [dock402.com](https://dock402.com)
+- Twitter: [@dock402](https://x.com/dock402)
+- GitHub: [github.com/dock402](https://github.com/dock402)
 
 ## License
 
-MIT
-
-## Credits
-
-Built on top of:
-- [x402 Protocol](https://github.com/xgrain402)
-- [ethers.js](https://github.com/ethers-io/ethers.js)
-- [BSC Documentation](https://docs.bnbchain.org)
+MIT - see LICENSE file for details

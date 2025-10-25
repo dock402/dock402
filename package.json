@@ -1,22 +1,28 @@
 {
-  "name": "xgrain402",
+  "name": "@dock402/x402-sdk",
   "version": "1.0.0",
-  "description": "Advanced BSC (Binance Smart Chain) payment infrastructure for seamless microtransactions and machine economies",
+  "description": "Multi-chain x402 payment infrastructure for decentralized applications. Supports Base, Solana, Polygon, BSC, Sei, and Peaq.",
   "keywords": [
-    "xgrain402",
+    "dock402",
+    "x402",
+    "http-402",
+    "payment-required",
+    "base",
+    "solana",
+    "polygon",
     "bsc",
-    "binance-smart-chain",
-    "bnb",
+    "sei",
+    "peaq",
     "payments",
     "microtransactions",
-    "machine-economy",
+    "multi-chain",
     "crypto",
     "web3",
-    "payment-rail",
+    "blockchain",
     "evm",
-    "defi"
+    "payment-protocol"
   ],
-  "author": "xgrain402",
+  "author": "Dock402 <contact@dock402.com>",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -51,7 +57,8 @@
   "files": [
     "dist",
     "src",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsup",
@@ -68,7 +75,7 @@
   },
   "dependencies": {
     "ethers": "^6.9.0",
-    "@xgrain402/core": "^1.0.0",
+    "@solana/web3.js": "^1.87.0",
     "zod": ">=3.20.0"
   },
   "peerDependencies": {
@@ -93,10 +100,10 @@
   "packageManager": "pnpm@8.0.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/xgrain402/xgrain402.git"
+    "url": "https://github.com/dock402/dock402.git"
   },
-  "homepage": "https://github.com/xgrain402/xgrain402",
+  "homepage": "https://github.com/dock402/dock402",
   "bugs": {
-    "url": "https://github.com/xgrain402/xgrain402/issues"
+    "url": "https://github.com/dock402/dock402/issues"
   }
 }
