@@ -1,5 +1,7 @@
 # dock402
 
+<img width="1500" height="500" alt="image" src="https://github.com/user-attachments/assets/5571b9e8-df61-4809-a698-b34b7cecf600" />
+
 *Multi-chain x402 payment infrastructure for decentralized applications*
 
 dock402 delivers production-ready payment processing capabilities built for the x402 protocol across multiple blockchain networks. This SDK enables developers to integrate sophisticated microtransaction functionality into web applications, supporting automated payment flows that scale with blockchain-native performance characteristics.
